@@ -28,8 +28,8 @@ pip install -r requirements.txt
 brew install --cask mactex-no-gui
 ```
 
-> macOS will ask for permissions the first time.
-> Go to **System Settings → Privacy & Security → Accessibility**, and enable access for **Terminal**.
+> macOS will ask for some permissions the first time.
+> Also need to go to **System Settings → Privacy & Security → Accessibility**, and enable access for **Terminal**. (Two things)
 
 
 
