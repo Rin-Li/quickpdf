@@ -12,7 +12,7 @@ In contrast, typing formulas in Markdown is often faster and cleaner — especia
 So I built **`mdclip`**, a small utility that lets you:
 
 - Write Markdown with LaTeX-style math like:
-  `I want to add the $a + b = 2$.`
+  `I want to add the $a + b = 2$.` or `$WR \in \mathbb{R}_{+}^{m \times r}, \quad R^\top H \in \mathbb{R}_{+}^{r \times n}$`
 - Automatically render it as a **clean, tightly-cropped PDF**
 - Copy the result directly to your clipboard, ready to paste into PowerPoint
 
