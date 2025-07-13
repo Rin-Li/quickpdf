@@ -2,27 +2,37 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 from mdclip.utils.cmd import run_cmd
-from mdclip.utils.paths import get_tmpdir
 
-PANDOC_CMD = ["pandoc", "--standalone", "--pdf-engine=xelatex", "-V", "documentclass=standalone"]
-PDFCROP_CMD = ["pdfcrop"]
+PANDOC_CMD = [
+    "pandoc", "--standalone", "--pdf-engine=xelatex",
+    "-V", "documentclass=standalone"
+]
+PDFCROP_CMD = ["pdfcrop", "--margins", "0"]
 
-def convert_md_to_pdf(md_text: str, output_pdf: Optional[str]=None) -> Path:
-    tmpdir = get_tmpdir()
-    md = tmpdir / "input.md"
-    tex = tmpdir / "output.tex"
-    raw = tmpdir / "output.pdf"
+def convert_md_to_pdf(md_text: str, output_pdf: Optional[str] = None) -> Path:
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    base_dir = Path.cwd() / "tmp" / f"mdclip_{ts}"
+    base_dir.mkdir(parents=True, exist_ok=True)
+
+    md = base_dir / "input.md"
+    tex = base_dir / "output.tex"
+    raw = base_dir / "output.pdf"
+    final_pdf = base_dir / "result.pdf" if output_pdf is None else Path(output_pdf).expanduser().resolve()
 
     md.write_text(md_text, encoding="utf-8")
-    run_cmd(PANDOC_CMD + [str(md), "-o", str(tex)])
-    run_cmd(["xelatex", "-interaction=nonstopmode", "-output-directory", str(tmpdir), str(tex)])
 
-    if output_pdf is None:
-        tmp_dir = Path.cwd() / "tmp"
-        tmp_dir.mkdir(exist_ok=True)
-        
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_pdf = tmp_dir / f"mdclip_{ts}.pdf"
-    cropped = Path(output_pdf).expanduser().resolve()
-    run_cmd(PDFCROP_CMD + [str(raw), str(cropped)])
-    return cropped
+    run_cmd(PANDOC_CMD + [str(md), "-o", str(tex)])
+
+    run_cmd([
+        "xelatex",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "-file-line-error",
+        "-output-directory", str(base_dir),
+        str(tex)
+    ])
+
+    run_cmd(PDFCROP_CMD + [str(raw), str(final_pdf)])
+
+    print(f" PDF generated at: {final_pdf}")
+    return final_pdf
